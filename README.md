@@ -1,6 +1,6 @@
 # EmergencyDepartmentPatientPred
 
-Hourly Emergency Department (ED) patient arrival forecasting at Vestfold Hospital Trust (Sykehuset i Vestfold, SiV; Tønsberg, Norway). This repository contains the experimental notebooks used in the master's thesis *Forecast Capacity and Influx of Patients to the Emergency Department*, which evaluates six forecasting models against the hospital's existing calendar-based Median Baseline across 1, 2, 6, 12, and 24 hour horizons. The underlying dataset is the property of Vestfold Hospital Trust and is not distributed here; see [Data](#data) for what the notebooks expect.
+Hourly Emergency Department (ED) patient arrival forecasting at Vestfold Hospital Trust (Sykehuset i Vestfold, SiV; Tønsberg, Norway). This repository contains the experimental notebooks used in the master's thesis *Forecast Capacity and Influx of Patients to the Emergency Department*, which evaluates five machine learning models, including for comparison the hospital's existing calendar-based Median Baseline, across 1, 2, 6, 12, and 24 hour horizons. The underlying dataset is the property of Vestfold Hospital Trust and is not distributed here; see [Data](#data) for what the notebooks expect.
 
 ## Live demo
 
