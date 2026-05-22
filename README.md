@@ -1,6 +1,6 @@
 # EmergencyDepartmentPatientPred
 
-Hourly Emergency Department (ED) patient arrival forecasting at Vestfold Hospital Trust (Sykehuset i Vestfold, SiV; Tønsberg, Norway). This repository contains the experimental notebooks used in the master's thesis *Forecast Capacity and Influx of Patients to the Emergency Department*, which evaluates five machine learning models, including for comparison the hospital's existing calendar-based Median Baseline, across 1, 2, 6, 12, and 24 hour horizons. The underlying dataset is the property of Vestfold Hospital Trust and is not distributed here; see [Data](#data) for what the notebooks expect.
+Hourly Emergency Department (ED) patient arrival forecasting at Vestfold Hospital Trust (Sykehuset i Vestfold, SiV; Tønsberg, Norway). This repository contains the experimental notebooks used in the master's thesis *Forecast Capacity and Influx of Patients to the Emergency Department*, which evaluates five machine learning models against the hospital's existing calendar-based Median Baseline across various horizons. The underlying dataset is the property of Vestfold Hospital Trust and is not distributed here; see [Data](#data) for what the notebooks expect.
 
 ## Live demo
 
@@ -8,7 +8,7 @@ A prototype inference API for the strongest long-horizon model (Direct LSTM+Optu
 
 https://huggingface.co/spaces/Foysal061/ED_arrival_LSTM
 
-The Space accepts 24 hourly rows of 46 engineered features and returns 24 hourly arrival counts, matching the contract of the existing Vestfold 24-hour planning dashboard.
+The Space accepts 24 hourly rows of 46 engineered features and returns 24 hourly arrival counts, matching the 24-hour horizon of the existing Vestfold planning dashboard.
 
 ## Models
 
@@ -25,13 +25,13 @@ The Space accepts 24 hourly rows of 46 engineered features and returns 24 hourly
 
 | Notebook | Description |
 |---|---|
-| `HFInputCSVGenerator.ipynb` | Produces a 24-row × 46-feature CSV in the exact column order the deployed Hugging Face Space expects. Pulls hourly weather for the Vestfold coordinates from the Open-Meteo Archive API, fetches Norwegian public holidays from the Nager.Date API, reads monthly infection totals from `Infeksjonsdata.xlsx` (private, see [Data](#data)), and computes the engineered calendar, lag, EMA, and triage features. The resulting file can be uploaded directly to the **Upload CSV** tab of the Space without any manual feature engineering. |
+| `HFInputCSVGenerator.ipynb` | Produces a 24-row × 46-feature CSV in the exact column order the deployed Hugging Face Space expects. Pulls hourly weather observations for the Vestfold coordinates from the Open-Meteo Archive API, fetches Norwegian public holidays from the Nager.Date API, reads monthly infection totals from `Infeksjonsdata.xlsx` (private, see [Data](#data)), and computes the engineered calendar, lag, EMA, and triage features. The resulting file can be uploaded directly to the **Upload CSV** tab of the Space without any manual feature engineering. |
 
 ## Data
 
 The dataset that backs every notebook in this repository is the
 property of Vestfold Hospital Trust (SiV) and **cannot be redistributed
-here**. Anyone wanting to reproduce the experiments needs to obtain the
+here**. Anyone wishing to reproduce the experiments must obtain the
 two source files directly from the hospital, under a separate data
 agreement, and place them in the working directory before running the
 notebooks. The notebooks expect:
@@ -50,7 +50,7 @@ from the Nager.Date API.
 
 ## Method
 
-- **Train/validation/test split.** 80/10/10 chronological. The Median Baseline uses a separate seven-day evaluation window (18-25 October 2024) because it is a statistical lookup with no training phase.
+- **Train/validation/test split.** Chronological 80/10/10. The Median Baseline uses a separate seven-day evaluation window (18-25 October 2024) because it is a statistical lookup with no training phase.
 - **Feature set.** 46 engineered features per hour, including calendar variables, lag features, exponential moving averages, weather, monthly infection rate, holiday indicators, and triage-category distributions.
 - **Evaluation horizons.** 1, 2, 6, 12, and 24 hours.
 - **Metrics.** RMSE, MAE, R², MAPE.
@@ -69,15 +69,15 @@ R² on the held-out test set:
 
 The Median Baseline reaches R² = 0.025 on its own seven-day window.
 
-**Per-horizon recommendation.** LSTM+Optuna at 1-2 hours (lowest RMSE), BiLSTM at 6 hours, Direct LSTM+Optuna at 12-24 hours (the only model that maintains positive R² across the full horizon range). The autoregressive LSTM variants collapse to negative R² at 12 hours because their cyclical temporal features stay frozen during recursive rollout; LightGBM avoids this by recomputing features at every step, and the Direct LSTM+Optuna sidesteps the issue by removing rollout altogether.
+**Per-horizon recommendation.** LSTM+Optuna at 1-2 hours (lowest RMSE), BiLSTM at 6 hours, and Direct LSTM+Optuna at 12-24 hours (the only model that maintains a positive R² across the full horizon range). The autoregressive LSTM variants collapse to a negative R² at 12 hours because their cyclical temporal features stay frozen during recursive rollout; LightGBM avoids this by recomputing features at every step, and the Direct LSTM+Optuna sidesteps the issue by removing rollout altogether.
 
 ## How to run
 
-The notebooks were developed in Google Colab with Google Drive storage. Running them in Colab is the easiest option; a local setup is also supported.
+The notebooks were developed in Google Colab with data stored on Google Drive. Running them in Colab is the easiest option; a local setup is also supported.
 
 ### Option A: Google Colab (recommended)
 
-1. Obtain the two data files (`VestfoldTriageReport.csv` and `Infeksjonsdata.xlsx`) from Vestfold Hospital Trust (see the [Data](#data) section above), and upload them to a folder in your Google Drive, for example `MyDrive/Colab Notebooks/`.
+1. Obtain the two data files (`VestfoldTriageReport.csv` and `Infeksjonsdata.xlsx`) from Vestfold Hospital Trust (see the [Data](#data) section above) and upload them to a folder in your Google Drive, for example `MyDrive/Colab Notebooks/`.
 
 2. Open a notebook in Colab. Either click the notebook on GitHub and use the **Open in Colab** badge, or go to:
 
@@ -100,7 +100,7 @@ The notebooks were developed in Google Colab with Google Drive storage. Running 
    drive.mount('/content/drive')
    ```
 
-5. In the configuration cell near the top of the notebook, set `ED_DATA_PATH` and `INFECTION_DATA_PATH` to point at the files you uploaded in step 1, for example:
+5. In the configuration cell near the top of the notebook, set `ED_DATA_PATH` and `INFECTION_DATA_PATH` to point to the files you uploaded in step 1, for example:
 
    ```python
    ED_DATA_PATH = "/content/drive/MyDrive/Colab Notebooks/VestfoldTriageReport.csv"
@@ -126,7 +126,7 @@ The notebooks were developed in Google Colab with Google Drive storage. Running 
 
 3. Obtain the two data files from Vestfold Hospital Trust (see the [Data](#data) section above) and place them in the working directory. Open a notebook in Jupyter or VS Code, and in the configuration cell replace the `path/to/...` placeholders with the local paths, for example `./VestfoldTriageReport.csv` and `./Infeksjonsdata.xlsx`. The Drive-mount cell can be commented out or removed when running locally.
 
-4. Run the cells top-to-bottom.
+4. Run the cells from top to bottom.
 
 ## Repository structure
 
